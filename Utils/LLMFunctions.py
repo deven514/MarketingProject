@@ -4,6 +4,8 @@ from langchain_ollama import embeddings, OllamaEmbeddings, chat_models
 from langchain_community.llms import ollama
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains.summarize import load_summarize_chain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from langchain.prompts import PromptTemplate
 
@@ -15,7 +17,7 @@ model = "gemma3:latest"
 def getEmbeddings(reviews):
     print("getting Embeddings")
     reviewsEmbeddings = []
-    embed = OllamaEmbeddings(model=model)
+    embed = OllamaEmbeddings(base_url="http://localhost:11434")
     for review in reviews:
         reviewsEmbeddings.append(embed.embed_documents(review))
     print("done")
@@ -25,7 +27,7 @@ def getEmbeddings(reviews):
 
 def getSentiments(reviews):
     reviewSentiments = []
-    llm = chat_models.ChatOllama(model=model, temprature=0)
+    llm = chat_models.ChatOllama(model=model, base_url="http://localhost:11434")
     systemMessage = SystemMessage("Provide a sentiment score between -1 and 1 where -1 is most negative review and 1 is most positive review.  Strickly provide a numerical value only.")
 
     for review in reviews:
@@ -36,20 +38,22 @@ def getSentiments(reviews):
 
 
 def getSummary(reviews):
-    llm = chat_models.ChatOllama(model=model)
-    systemMessage = SystemMessage("You are to provide a summary of the reviews provided.")
-    allReviews = ""
-    for review in reviews:
-        allReviews = allReviews.join(review)
-
-    result = llm.invoke([systemMessage, allReviews])
-    return result.content
+    llm = chat_models.ChatOllama(model=model,  base_url="http://localhost:11434")
+    textSplitter = RecursiveCharacterTextSplitter(separators=["."], chunk_size=10000, chunk_overlap=500)
+    splitRevs = textSplitter.create_documents(reviews)
 
 
+    summary = load_summarize_chain(llm=llm, chain_type="stuff")
+    result = summary.invoke(splitRevs)
+
+
+    return result["output_text"]
 
 
 
-Messages = ["I love this product",
+
+
+Messages = ["I love this product.",
             "This product was good.",
             "Just wished it had more colors.",
             "Colors fade after the washed.",
@@ -58,6 +62,7 @@ Messages = ["I love this product",
             "I did not like the product."
             ]
 sentimentSummary = getSummary(Messages)
+
 print(sentimentSummary)
 
 
