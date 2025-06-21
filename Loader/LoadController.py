@@ -1,9 +1,9 @@
-from Helper import getDBData, getLLMEmbeddings
+from Helper import getDBData, LLMFunctions
 
 
 def main():
     rowNum, Asin, BrandId, starRating, reviews = getDBData.getAllData()
-    reviewVector = getLLMEmbeddings.getEmbeddings(reviews)
+    reviewVector = LLMFunctions.getEmbeddings(reviews)
     return None
 
 
