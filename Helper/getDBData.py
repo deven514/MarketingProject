@@ -26,8 +26,30 @@ def getAllData():
 
 
 
-# rows, asin, BrandId, starRatings, reviews = getAllData()
-# print(reviews)
+
+def getReviewsByBrand(brand):
+    rowNum = []
+    Asin = []
+    BrandId = []
+    starRating = []
+    reviews = []
+    connection = dbUtils.dbConnection()
+    if (isinstance(connection, dict)):
+        return connection
+    else:
+        sqlQuery = f"select sno, asin, brand_Id, rating, reviews.cleaned_review_text from reviews  where brand_id = {brand} and cleaned_review_text is not null"
+        resultset = dbUtils.execStatement(connection, sqlQuery)
+        for row in resultset:
+            rowNum.append(row[0])
+            Asin.append(row[1])
+            BrandId.append(row[2])
+            starRating.append(row[3])
+            reviews.append(row[4])
+    return (rowNum, Asin, BrandId, starRating, reviews)
+
+
+rows, asin, BrandId, starRatings, reviews = getReviewsByBrand(207)
+print(reviews)
 
 
 

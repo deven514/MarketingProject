@@ -53,22 +53,14 @@ def getSummary(reviews):
 
 
 
-Messages = ["I love this product.",
-            "This product was good.",
-            "Just wished it had more colors.",
-            "Colors fade after the washed.",
-            "This is made with very poor quality products",
-            "It gave me an itch when wearing it.  Would not recomment it.",
-            "I did not like the product."
-            ]
-sentimentSummary = getSummary(Messages)
-
-print(sentimentSummary)
-
-
-
-
-
-
-
-
+# Messages = ["I love this product.",
+#             "This product was good.",
+#             "Just wished it had more colors.",
+#             "Colors fade after the washed.",
+#             "This is made with very poor quality products",
+#             "It gave me an itch when wearing it.  Would not recomment it.",
+#             "I did not like the product."
+#             ]
+# sentimentSummary = getSummary(Messages)
+#
+# print(sentimentSummary)
