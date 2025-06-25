@@ -47,5 +47,4 @@ def callStoredProc(procName, args = None ):
 
 
 
-results = callStoredProc("SelectAllBrands")
-print(results[0][0])
+

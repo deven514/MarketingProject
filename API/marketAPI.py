@@ -17,11 +17,6 @@ async def getAllBrands():
     brands = getDBData.getBrands()
     return jsonable_encoder(brands)
 
-@app.get("/getBrandInfo(brand")
-async def getBrandInfo(brandId: int):
-
-
-
 
 if __name__ == "__main__":
     uvicorn.run(app)
