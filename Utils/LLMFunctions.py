@@ -1,33 +1,33 @@
 from click import prompt
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_ollama import embeddings, OllamaEmbeddings, chat_models
+from langchain_google_vertexai import VertexAIEmbeddings
+
 from langchain_community.llms import ollama
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.summarize import load_summarize_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-
 from langchain.prompts import PromptTemplate
 
 
 
-model = "gemma3:latest"
+modelLlama = "llama3.2:latest"
+modelGemma = "Gemma3:latest"
 
 
 def getEmbeddings(reviews):
-    print("getting Embeddings")
-    reviewsEmbeddings = []
-    embed = OllamaEmbeddings(base_url="http://localhost:11434")
-    for review in reviews:
-        reviewsEmbeddings.append(embed.embed_documents(review))
-    print("done")
-    return reviewsEmbeddings
+    reviewEmbeddings = []
+    llm = OllamaEmbeddings(model=modelLlama, base_url="http://localhost:11434")
+  #:
+    reviewEmbeddings.append(llm.embed_documents(reviews))
+    return reviewEmbeddings
 
 
 
 def getSentiments(reviews):
     reviewSentiments = []
-    llm = chat_models.ChatOllama(model=model, base_url="http://localhost:11434")
+    llm = chat_models.ChatOllama(model=modelGemma, base_url="http://localhost:11434")
     systemMessage = SystemMessage("Provide a sentiment score between -1 and 1 where -1 is most negative review and 1 is most positive review.  Strickly provide a numerical value only.")
 
     for review in reviews:
@@ -38,7 +38,7 @@ def getSentiments(reviews):
 
 
 def getSummary(reviews):
-    llm = chat_models.ChatOllama(model=model,  base_url="http://localhost:11434")
+    llm = chat_models.ChatOllama(model=modelGemma,  base_url="http://localhost:11434")
     textSplitter = RecursiveCharacterTextSplitter(separators=["."], chunk_size=10000, chunk_overlap=500)
     splitRevs = textSplitter.create_documents(reviews)
 
@@ -46,8 +46,10 @@ def getSummary(reviews):
     summary = load_summarize_chain(llm=llm, chain_type="stuff")
     result = summary.invoke(splitRevs)
 
-
     return result["output_text"]
+
+
+
 
 
 

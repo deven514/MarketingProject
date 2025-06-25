@@ -1,6 +1,7 @@
 import collections
 
 import chromadb
+import re
 
 # chromaDir is the location where the data will be stored.
 chromaDir = "d:/database/chroma"
@@ -34,20 +35,31 @@ def deleteCollectionDataById(name, idList):
 # meta will consist of dictionary of ASIN and Sentiment score from the LLM.
 
 def createNewCollecttion(name, embeddings, ids, reviews, meta ):
-    collection = getChromaCollection(name)
+    collectionName = stripChars(name)
+    collection = getChromaCollection(collectionName)
     collection.add(
         ids = ids,
         embeddings = embeddings,
         documents=reviews,
         metadatas= meta
     )
+    return
+
+def stripChars(text):
+  """Removes all non-alphanumeric characters from a string."""
+  # The regex [^a-zA-Z0-9] matches any character that is NOT a letter (uppercase or lowercase) or a digit.
+  cleaned_text = re.sub(r'[^a-zA-Z0-9_]', '', text)
+  return cleaned_text
+
 
 def addDataCollection(name, embeddings, ids, reviews, meta):
-    createNewCollecttion(name, embeddings, ids, reviews, meta)
+    collectionName = stripChars(name)
+    createNewCollecttion(collectionName, embeddings, ids, reviews, meta)
 
 
 def getDataCollection(name, ids):
-    collection = getChromaCollection(name)
+    collectionName = stripChars(name)
+    collection = getChromaCollection(collectionName)
     return collection.get(
                             ids=ids,
                             include=["documents", "metadatas", "embeddings"]

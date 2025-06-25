@@ -1,6 +1,6 @@
 import mysql.connector
 import Utils.getEnvSettings
-
+import warnings
 
 
 
@@ -25,14 +25,27 @@ def execStatement(dbConnection, sqlQuery):
     dbCursor.execute(sqlQuery)
     return dbCursor
 
+def callStoredProc(procName, args = None ):
+    warnings.filterwarnings("ignore")
+    connection = dbConnection()
+    if (isinstance(connection, dict)):
+        return connection
+    else:
+        rows = []
+        cursor = connection.cursor()
+        if (args == None):
+            cursor.callproc(procName)
+        else:
+            cursor.callproc(procName, args)
+        for result in cursor.stored_results():
+            rows.append(result.fetchall())
+        cursor.close()
+        connection.close()
+        return rows[0]
 
 
 
 
-# connection = dbConnection()
-# if (isinstance(connection, dict)):
-#     print(connection)
-# else:
-#     print("Connection established")
 
-
+results = callStoredProc("SelectAllBrands")
+print(results[0][0])
