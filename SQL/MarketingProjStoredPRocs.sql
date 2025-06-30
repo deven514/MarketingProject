@@ -40,11 +40,11 @@ BEGIN
     FROM brands, reviews
     where brands.brand_id = reviews.brand_id
     AND reviews.cleaned_review_text is NOT NULL
-    AND sentiment_score = -99.99
-    AND brands.Brand_Id = brand;
+    AND brands.Brand_Id = Brand;
 end;
 
-drop procedure SelectBrandsSentiment;
+
+
 
 
 CREATE PROCEDURE updateSentimentScore(IN rowNum text, In Score float)

@@ -101,7 +101,3 @@ def updateSentimentScore(rowNum, sentimentScore):
 
 # title, starRating, reviews = getReviewsByBrand("Polo Store")
 # print(reviews[1])
-
-
-
-
