@@ -19,8 +19,9 @@ END;
 
 CREATE PROCEDURE SelectByBrand(In brand text)
 BEGIN
-    SELECT asin, rating, cleaned_review_text from reviews, brands
+    SELECT reviews.asin, title, rating, cleaned_review_text from reviews, brands, products
     WHERE brands.Brand_Id = reviews.Brand_Id
+    AND brands.Brand_Id = products.Brand_Id
     AND brands.brand_name = brand
     AND cleaned_review_text is NOT NULL
     ORDER BY asin;
@@ -31,3 +32,27 @@ CREATE PROCEDURE SelectAllBrandNames()
 BEGIN
     Select brand_name from brands order by brand_name;
 end;
+
+
+CREATE PROCEDURE SelectBrandsSentiment(In Brand text)
+BEGIN
+    SELECT reviews.sno, reviews.asin, reviews.cleaned_review_text
+    FROM brands, reviews
+    where brands.brand_id = reviews.brand_id
+    AND reviews.cleaned_review_text is NOT NULL
+    AND sentiment_score = -99.99
+    AND brands.Brand_Id = brand;
+end;
+
+drop procedure SelectBrandsSentiment;
+
+
+CREATE PROCEDURE updateSentimentScore(IN rowNum text, In Score float)
+BEGIN
+    UPDATE reviews
+    set sentiment_score = Score
+    Where reviews.sno = rowNum;
+end;
+
+
+

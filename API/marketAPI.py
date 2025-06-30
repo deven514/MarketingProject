@@ -14,7 +14,7 @@ async def root():
 
 @app.get("/getAllBrands")
 async def getAllBrands():
-    brands = getDBData.getBrands()
+    brands = getDBData.getBrandsNames()
     return jsonable_encoder(brands)
 
 

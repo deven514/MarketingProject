@@ -10,30 +10,31 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
 
-
+#   NOTE:  For all sentiment analytics including getting a summary and a sentiment score Gemma 3 will be used.
+#   Found that the sentiment Scoring and summaries are better with the Gemma model.
+#   Llama can be used for any RAG and Chat functionality development.
 
 modelLlama = "llama3.2:latest"
 modelGemma = "Gemma3:latest"
 
+## Leaving out the Embeddings for now.
+# def getEmbeddings(reviews):
+#     reviewEmbeddings = []
+#     llm = OllamaEmbeddings(model=modelLlama, base_url="http://localhost:11434")
+#
+#     reviewEmbeddings.append(llm.embed_documents(reviews))
+#     return reviewEmbeddings
 
-def getEmbeddings(reviews):
-    reviewEmbeddings = []
-    llm = OllamaEmbeddings(model=modelLlama, base_url="http://localhost:11434")
-  #:
-    reviewEmbeddings.append(llm.embed_documents(reviews))
-    return reviewEmbeddings
 
 
-
-def getSentiments(reviews):
+def getSentimentScores(reviews):
     reviewSentiments = []
     llm = chat_models.ChatOllama(model=modelGemma, base_url="http://localhost:11434")
-    systemMessage = SystemMessage("Provide a sentiment score between -1 and 1 where -1 is most negative review and 1 is most positive review.  Strickly provide a numerical value only.")
-
+    systemMessage = SystemMessage("""Strickly provide a numerical value only between -1 and 1. Where -1 is most negative review, 
+                      0 is a neutral review, and 1 is most positive review.""")
     for review in reviews:
-
         result = llm.invoke([systemMessage, review])
-        reviewSentiments.append(result.content)
+        reviewSentiments.append(float(result.content.strip("\n")))
     return reviewSentiments
 
 
@@ -41,12 +42,17 @@ def getSummary(reviews):
     llm = chat_models.ChatOllama(model=modelGemma,  base_url="http://localhost:11434")
     textSplitter = RecursiveCharacterTextSplitter(separators=["."], chunk_size=10000, chunk_overlap=500)
     splitRevs = textSplitter.create_documents(reviews)
-
-
     summary = load_summarize_chain(llm=llm, chain_type="stuff")
     result = summary.invoke(splitRevs)
 
     return result["output_text"]
+
+def getComparativeAnalysis(prod1Name, prod1Reviews, prod2Name, prod2Reviews):
+    llm = chat_models.ChatOllama(model=modelGemma, base_url="http://localhost:11434")
+    textSplitter = RecursiveCharacterTextSplitter(separators=["."], chunk_size=10000, chunk_overlap=500)
+    splitRev1 = textSplitter.create_documents(prod1Reviews)
+    splitRev2 = textSplitter.create_documents(prod2Reviews)
+    
 
 
 

@@ -46,5 +46,17 @@ def callStoredProc(procName, args = None ):
 
 
 
-
+def callStoredUpdateProc(procName, args):
+    warnings.filterwarnings("ignore")
+    connection = dbConnection()
+    if (isinstance(connection, dict)):
+        return connection
+    else:
+        cursor = connection.cursor()
+        cursor.callproc(procName, args)
+        row = cursor.rowcount
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return row
 
