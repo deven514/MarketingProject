@@ -43,6 +43,8 @@ BEGIN
     AND brands.Brand_Id = Brand;
 end;
 
+drop procedure selectBrandsSentiment;
+
 
 
 
