@@ -41,20 +41,21 @@ def getSentimentScores(reviews):
     scoreFloat = 0.0
     for review in reviews:
        logging.info("The Review is: " + review)
-       result = llm.invoke([systemMessage, review])
-       logging.info("The Sentiment Score is: " + result.content)
-       score = result.content
-       score = re.sub(r"-[0-9]", "", score)
-       score = score.strip("\n")
-       logging.info("The Sentiment Score after clean up is: " + score)
-       if ((score == "") or (len(score) > 5)):
-          logging.info("RETRYYING: " + review)
-          msg = "Provide a numerical sentiment score for the review."
-          result = llm.invoke([msg, review])
-          logging.info("The Sentiment Score is: " + result.content)
-       if ((len(score) > 0) and (generalUtils.floatConvertible(score))):
-           scoreFloat = float(score)
-           reviewSentiments.append(scoreFloat)
+       if (review != ""):
+           result = llm.invoke([systemMessage, review])
+           logging.info("The Sentiment Score is: " + result.content)
+           score = result.content
+           score = re.sub(r"-[0-9]", "", score)
+           score = score.strip("\n")
+           logging.info("The Sentiment Score after clean up is: " + score)
+           if ((score == "") or (len(score) > 5)):
+              logging.info("RETRYYING: " + review)
+              msg = "Provide a numerical sentiment score for the review."
+              result = llm.invoke([msg, review])
+              logging.info("The Sentiment Score is: " + result.content)
+           if ((len(score) > 0) and (generalUtils.floatConvertible(score))):
+               scoreFloat = float(score)
+               reviewSentiments.append(scoreFloat)
 
 
 
