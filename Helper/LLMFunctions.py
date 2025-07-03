@@ -66,13 +66,6 @@ def getSentimentScores(reviews):
 
 
 
-def getSummary(reviews):
-    llm = chat_models.ChatOllama(model=modelGemma,  base_url="http://localhost:11434")
-    textSplitter = RecursiveCharacterTextSplitter(separators=["."], chunk_size=10000, chunk_overlap=500)
-    splitRevs = textSplitter.create_documents(reviews)
-    summary = load_summarize_chain(llm=llm, chain_type="stuff")
-    result = summary.invoke(splitRevs)
-    return result["output_text"]
 
 
 
