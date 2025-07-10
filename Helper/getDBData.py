@@ -7,6 +7,7 @@ def getAllData():
     BrandId = []
     starRating = []
     reviews = []
+    sentimentScore = []
     procName = "selectAllData"
     resultset = dbUtils.callStoredProc(procName)
     for row in resultset:
@@ -15,7 +16,8 @@ def getAllData():
         BrandId.append(row[2])
         starRating.append(row[3])
         reviews.append(row[4])
-    return (rowNum, Asin, BrandId, starRating, reviews)
+        sentimentScore.append(row[5])
+    return (rowNum, Asin, BrandId, starRating, reviews, sentimentScore)
 
 
 def getReviewsByBrand(brand):
@@ -23,6 +25,7 @@ def getReviewsByBrand(brand):
     starRating = []
     reviews = []
     productName = []
+    sentimentScores = []
     procName = "SelectByBrand"
     args = []
     args.append(brand)
@@ -32,7 +35,8 @@ def getReviewsByBrand(brand):
         productName.append(row[1])
         starRating.append(row[2])
         reviews.append(row[3])
-    return (Asin,productName ,starRating, reviews)
+        sentimentScores.append(row[4])
+    return (Asin,productName ,starRating, reviews, sentimentScores)
 
 
 #
@@ -41,6 +45,7 @@ def getReviewsByAsin(asin):
     starRating = []
     reviews = []
     title = []
+    sentimentScore = []
     procName = "SelectReviewsByAsin"
     args = []
     args.append(asin)
@@ -49,9 +54,10 @@ def getReviewsByAsin(asin):
         title.append(row[0])
         starRating.append(row[1])
         reviews.append(row[2])
-    return (title, starRating, reviews)
+        sentimentScore.append(row[3])
+    return (title, starRating, reviews, sentimentScore)
 
-#
+
 
 def getAllBrands():
     brandId = []
@@ -98,6 +104,18 @@ def updateSentimentScore(rowNum, sentimentScore):
         return True
     return False
 
+def getBrandReviews(brandName: str):
+    reviews = []
+    procname = "getBrandReviews"
+    args = []
+    args.append(brandName)
+    resultset = dbUtils.callStoredProc(procname, args)
+    for row in resultset:
+        reviews.append(row[0])
+    return reviews
 
-# title, starRating, reviews = getReviewsByBrand("Polo Store")
-# print(reviews[1])
+
+
+# asin, productNames,  starRating, reviews, sentimentScore = getReviewsByBrand("POLO Store")
+#
+# print(reviews)

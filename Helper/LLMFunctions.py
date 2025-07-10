@@ -1,11 +1,19 @@
-from click import prompt
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import embeddings, OllamaEmbeddings, chat_models
-from langchain.chains.summarize import load_summarize_chain
-from langchain.chains.llm import LLMChain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
 import re
 import logging
+
+from langchain_ollama import chat_models
+from langchain.chains import LLMChain
+
+
+
+from sqlalchemy.testing.suite.test_reflection import metadata
+
 from Utils import generalUtils
 
 
@@ -14,7 +22,7 @@ from Utils import generalUtils
 #   Found that the sentiment Scoring and summaries are better with the Gemma model.
 #   Llama can be used for any RAG and Chat functionality development.
 
-modelLlama = "llama3.2:latest"
+
 modelGemma = "Gemma3n:latest"
 
 ## Leaving out the Embeddings for now.
@@ -24,6 +32,8 @@ modelGemma = "Gemma3n:latest"
 #
 #     reviewEmbeddings.append(llm.embed_documents(reviews))
 #     return reviewEmbeddings
+
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s',
                     filename='F:/devprojects/python\MarketingProject/logs/llama.log', filemode='w')
 
@@ -38,6 +48,7 @@ def getSentimentScores(reviews):
     systemMessage = SystemMessage("""You are a helpful agent that provides a sentiment score for product reviews.
                     The score should have a value between -1 to 1.  Where -1 is the most negative sentiment for a review.
                     0 is a neutral sentiment and 1 is a positive sentiment. The output should only be the sentiment score.""")
+
     scoreFloat = 0.0
     for review in reviews:
        logging.info("The Review is: " + review)
@@ -56,10 +67,6 @@ def getSentimentScores(reviews):
            if ((len(score) > 0) and (generalUtils.floatConvertible(score))):
                scoreFloat = float(score)
                reviewSentiments.append(scoreFloat)
-
-
-
-
     return reviewSentiments
 
 
@@ -69,28 +76,62 @@ def getSentimentScores(reviews):
 
 
 
-# def getComparativeAnalysis(prod1Name, prod1Reviews, prod2Name, prod2Reviews):
-#     llm = chat_models.ChatOllama(model=modelGemma, base_url="http://localhost:11434")
-#     textSplitter = RecursiveCharacterTextSplitter(separators=["."], chunk_size=10000, chunk_overlap=500)
-#     splitRev1 = textSplitter.create_documents(prod1Reviews)
-#     splitRev2 = textSplitter.create_documents(prod2Reviews)
-    
+def getComparativeAnalysis(brand1,  prod1Reviews,  brand2, prod2Reviews):
+    llm = chat_models.ChatOllama(model=modelGemma, base_url="http://localhost:11434")
+    reviews = []
+    textSplitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=500)
+    splitRev1 = textSplitter.create_documents(prod1Reviews)
+    splitRev2 = textSplitter.create_documents(prod2Reviews)
+    template = """ You are an expert in product review comparison and analysis.  Compare the following two sets of reviews
+    context:{context}
+    """
+    for i in range(min(len(splitRev1), len(splitRev2))):
+        reviews.append(splitRev1[i])
+        reviews.append(splitRev2[i])
+
+    prompt = ChatPromptTemplate.from_template(template=template)
+    chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
+    response=chain.invoke({"context": reviews})
+
+
+
+    return response
 
 
 
 
 
+def summarizeReviews(reviews):
+
+   modelGemma = "Gemma3n:latest"
+   llm = chat_models.ChatOllama(model=modelGemma, base_url="http://localhost:11434")
+   documents = []
+   for review in reviews:
+       documents.append(Document(page_content=review))
+   prompt = ChatPromptTemplate.from_template("Summarize the reviews: {context}")
+   chain = create_stuff_documents_chain(llm, prompt)
+   result = chain.invoke({"context":documents})
+   return result
 
 
-
-# Messages = ["I love this product.",
-#             "This product was good.",
-#             "Just wished it had more colors.",
-#             "Colors fade after the washed.",
-#             "This is made with very poor quality products",
-#             "It gave me an itch when wearing it.  Would not recomment it.",
-#             "I did not like the product."
-#             ]
-# sentimentSummary = getSummary(Messages)
 #
-# print(sentimentSummary)
+# Messages1 = ["I love this product.",
+#              "This product was good.",
+#              "Just wished it had more colors.",
+#              "Colors fade after the washed.",
+#              "This is made with very poor quality products",
+#              "It gave me an itch when wearing it.  Would not recomment it.",
+#              "I did not like the product."
+#              ]
+#
+#
+# Messages2 = ["The fit was too tight. need to order a larger size.",
+#              "This product is of  good quality.",
+#              "I liked the wide range of colors.",
+#              "Colors fade after the washed.",
+#              "The shirt streatched after using them and wasing once.",
+#              "I have had better quality products.",
+#              "I did not like the product."
+#              ]
+# #
+# print(summarizeReviews(Messages1))

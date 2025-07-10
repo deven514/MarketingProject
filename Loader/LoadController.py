@@ -6,9 +6,10 @@ debug = False
 
 def main(debugStatus = False):
 
-    # get all brands to load
+   # get all brands to load
     debug = debugStatus
-    loadBrands()
+ #  loadBrands()
+
     return None
 
 
@@ -32,6 +33,9 @@ def loadBrands():
                 if (not executed):
                     print("Failed to update sentiment score for %s." % brandName)
     return None
+
+
+
 
 
 

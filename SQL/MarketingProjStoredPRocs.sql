@@ -12,20 +12,23 @@ end;
 
 CREATE PROCEDURE  SelectReviewsByASIN(IN amazonNo varchar(10))
 BEGIN
-    Select products.title, reviews.rating, reviews.cleaned_review_text from products, reviews
+    Select products.title, reviews.rating, reviews.cleaned_review_text, sentiment_score from products, reviews
     Where reviews.asin = products.asin
     and reviews.asin = amazonNo;
 END;
 
+
+
 CREATE PROCEDURE SelectByBrand(In brand text)
 BEGIN
-    SELECT reviews.asin, title, rating, cleaned_review_text from reviews, brands, products
+    SELECT reviews.asin, title, rating, cleaned_review_text, sentiment_score from reviews, brands, products
     WHERE brands.Brand_Id = reviews.Brand_Id
     AND brands.Brand_Id = products.Brand_Id
     AND brands.brand_name = brand
     AND cleaned_review_text is NOT NULL
     ORDER BY asin;
 end;
+
 
 
 CREATE PROCEDURE SelectAllBrandNames()
@@ -43,12 +46,6 @@ BEGIN
     AND brands.Brand_Id = Brand;
 end;
 
-drop procedure selectBrandsSentiment;
-
-
-
-
-
 CREATE PROCEDURE updateSentimentScore(IN rowNum text, In Score float)
 BEGIN
     UPDATE reviews
@@ -56,5 +53,13 @@ BEGIN
     Where reviews.sno = rowNum;
 end;
 
+
+CREATE PROCEDURE getBrandReviews(IN brandName text)
+BEGIN
+    SELECT reviews.cleaned_review_text
+    FROM reviews, brands
+    Where brands.Brand_Id = reviews.Brand_Id
+    AND brands.Brand_name = brandName;
+end;
 
 
